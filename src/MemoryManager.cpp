@@ -72,6 +72,10 @@ bool MemoryManager::setByte(uint32_t addr, uint8_t val, uint32_t *cycles) {
     return true;
   }
 
+  if (cycles) {
+    *cycles = 100;
+  }
+
   uint32_t i = this->getFirstEntryId(addr);
   uint32_t j = this->getSecondEntryId(addr);
   uint32_t k = this->getPageOffset(addr);
