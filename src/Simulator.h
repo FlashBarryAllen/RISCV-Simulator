@@ -254,6 +254,7 @@ private:
   struct History {
     uint32_t instCount;
     uint32_t cycleCount;
+    uint32_t memaccessCount;
     uint32_t stalledCycleCount;
 
     uint32_t predictedBranch; // Number of branch that is predicted successfully

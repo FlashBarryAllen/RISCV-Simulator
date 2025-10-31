@@ -100,6 +100,11 @@ uint8_t MemoryManager::getByte(uint32_t addr, uint32_t *cycles) {
   if (this->cache != nullptr) {
     return this->cache->getByte(addr, cycles);
   }
+
+  if (cycles) {
+    *cycles = 100;
+  }
+  
   uint32_t i = this->getFirstEntryId(addr);
   uint32_t j = this->getSecondEntryId(addr);
   uint32_t k = this->getPageOffset(addr);
@@ -201,6 +206,10 @@ void MemoryManager::printInfo() {
 
 void MemoryManager::printStatistics() {
   printf("---------- CACHE STATISTICS ----------\n");
+  if (this->cache == nullptr) {
+    printf("No cache is set!\n");
+    return;
+  }
   this->cache->printStatistics();
 }
 

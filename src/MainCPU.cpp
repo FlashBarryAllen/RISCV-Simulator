@@ -68,6 +68,7 @@ int main(int argc, char **argv) {
   l1Cache = new Cache(&memory, l1Policy, l2Cache);
 
   memory.setCache(l1Cache);
+  //memory.setCache(nullptr);
 
   // Read ELF file
   ELFIO::elfio reader;

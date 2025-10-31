@@ -1034,6 +1034,7 @@ void Simulator::memoryAccess() {
   uint32_t cycles = 0;
 
   if (writeMem) {
+    this->history.memaccessCount++;
     switch (memLen) {
     case 1:
       good = this->memory->setByte(out, op2, &cycles);
@@ -1057,6 +1058,7 @@ void Simulator::memoryAccess() {
   }
 
   if (readMem) {
+    this->history.memaccessCount++;
     switch (memLen) {
     case 1:
       if (readSignExt) {
@@ -1262,9 +1264,10 @@ void Simulator::printStatistics() {
   printf("------------ STATISTICS -----------\n");
   printf("Number of Instructions: %u\n", this->history.instCount);
   printf("Number of Cycles: %u\n", this->history.cycleCount);
-  printf("Avg Cycles per Instrcution: %.4f\n",
+  printf("Avg Cycles per Instruction: %.4f\n",
          (float)this->history.cycleCount / this->history.instCount);
-  printf("Branch Perdiction Accuacy: %.4f (Strategy: %s)\n",
+  printf("Number of Memory Accesses: %u\n", this->history.memaccessCount);
+  printf("Branch Prediction Accuracy: %.4f (Strategy: %s)\n",
          (float)this->history.predictedBranch /
              (this->history.predictedBranch + this->history.unpredictedBranch),
          this->branchPredictor->strategyName().c_str());
@@ -1274,7 +1277,7 @@ void Simulator::printStatistics() {
   printf("Number of Memory Hazards: %u\n",
          this->history.memoryHazardCount);
   printf("-----------------------------------\n");
-  //this->memory->printStatistics();
+  this->memory->printStatistics();
 }
 
 std::string Simulator::getRegInfoStr() {
