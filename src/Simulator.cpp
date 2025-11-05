@@ -173,7 +173,7 @@ void Simulator::fetch() {
   uint32_t len = 4;
 
   if (this->verbose) {
-    printf("Fetched instruction 0x%.8x at address 0x%llx\n", inst, this->pc);
+    printf("cycle %llu: Fetched instruction 0x%.8x at address 0x%llx\n", this->history.cycleCount, inst, this->pc);
   }
 
   this->fRegNew.bubble = false;
@@ -187,14 +187,14 @@ void Simulator::fetch() {
 void Simulator::decode() {
   if (this->fReg.stall) {
     if (verbose) {
-      printf("Decode: Stall\n");
+      printf("cycle %llu: Decode: Stall\n", this->history.cycleCount);
     }
     this->pc = this->pc - 4;
     return;
   }
   if (this->fReg.bubble || this->fReg.inst == 0) {
     if (verbose) {
-      printf("Decode: Bubble\n");
+      printf("cycle %llu: Decode: Bubble\n", this->history.cycleCount);
     }
     this->dRegNew.bubble = true;
     return;
@@ -644,7 +644,7 @@ void Simulator::decode() {
     this->history.instRecord.push_back(buf);
 
     if (verbose) {
-      printf("Decoded instruction 0x%.8x as %s\n", inst, inststr.c_str());
+      printf("cycle %llu: Decoded instruction 0x%.8x as %s\n", this->history.cycleCount, inst, inststr.c_str());
     }
   } else { // 16 bit instruction
     this->panic(
@@ -684,21 +684,21 @@ void Simulator::decode() {
 void Simulator::excecute() {
   if (this->dReg.stall) {
     if (verbose) {
-      printf("Execute: Stall\n");
+      printf("cycle %llu: Execute: Stall\n", this->history.cycleCount);
     }
     this->eRegNew.bubble = true;
     return;
   }
   if (this->dReg.bubble) {
     if (verbose) {
-      printf("Execute: Bubble\n");
+      printf("cycle %llu: Execute: Bubble\n", this->history.cycleCount);
     }
     this->eRegNew.bubble = true;
     return;
   }
 
   if (verbose) {
-    printf("Execute: %s\n", INSTNAME[this->dReg.inst]);
+    printf("cycle %llu: Execute: %s\n", this->history.cycleCount, INSTNAME[this->dReg.inst]);
   }
 
   this->history.instCount++;
@@ -1006,13 +1006,13 @@ void Simulator::excecute() {
 void Simulator::memoryAccess() {
   if (this->eReg.stall) {
     if (verbose) {
-      printf("Memory Access: Stall\n");
+      printf("cycle %llu: Memory Access: Stall\n", this->history.cycleCount);
     }
     return;
   }
   if (this->eReg.bubble) {
     if (verbose) {
-      printf("Memory Access: Bubble\n");
+      printf("cycle %llu: Memory Access: Bubble\n", this->history.cycleCount);
     }
     this->mRegNew.bubble = true;
     return;
@@ -1097,7 +1097,7 @@ void Simulator::memoryAccess() {
   this->history.cycleCount += cycles;
 
   if (verbose) {
-    printf("Memory Access: %s\n", INSTNAME[inst]);
+    printf("cycle %llu: Memory Access: %s\n", this->history.cycleCount, INSTNAME[inst]);
   }
 
   // Check for data hazard and forward data
@@ -1152,19 +1152,19 @@ void Simulator::memoryAccess() {
 void Simulator::writeBack() {
   if (this->mReg.stall) {
     if (verbose) {
-      printf("WriteBack: stall\n");
+      printf("cycle %llu: WriteBack: stall\n", this->history.cycleCount);
     }
     return;
   }
   if (this->mReg.bubble) {
     if (verbose) {
-      printf("WriteBack: Bubble\n");
+      printf("cycle %llu: WriteBack: Bubble\n", this->history.cycleCount);
     }
     return;
   }
 
   if (verbose) {
-    printf("WriteBack: %s\n", INSTNAME[this->mReg.inst]);
+    printf("cycle %llu: WriteBack: %s\n", this->history.cycleCount, INSTNAME[this->mReg.inst]);
   }
 
   if (this->mReg.writeReg && this->mReg.destReg != 0) {
@@ -1251,7 +1251,7 @@ int64_t Simulator::handleSystemCall(int64_t op1, int64_t op2) {
 
 void Simulator::printInfo() {
   printf("------------ CPU STATE ------------\n");
-  printf("PC: 0x%llx\n", this->pc);
+  printf("cycle %llu: PC: 0x%llx\n", this->history.cycleCount, this->pc);
   for (uint32_t i = 0; i < 32; ++i) {
     printf("%s: 0x%.8llx(%lld) ", REGNAME[i], this->reg[i], this->reg[i]);
     if (i % 4 == 3)
@@ -1285,7 +1285,7 @@ std::string Simulator::getRegInfoStr() {
   char buf[65536];
 
   str += "------------ CPU STATE ------------\n";
-  sprintf(buf, "PC: 0x%llx\n", this->pc);
+  sprintf(buf, "cycle %llu: PC: 0x%llx\n", this->history.cycleCount, this->pc);
   str += buf;
   for (uint32_t i = 0; i < 32; ++i) {
     sprintf(buf, "%s: 0x%.8llx(%lld) ", REGNAME[i], this->reg[i], this->reg[i]);
